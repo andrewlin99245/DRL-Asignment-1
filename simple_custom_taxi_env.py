@@ -14,7 +14,7 @@ import random
 
 
 class SimpleTaxiEnv():
-    def __init__(self, grid_size=5, fuel_limit=50):
+    def __init__(self, grid_size=5, fuel_limit=5000):
         """
         Custom Taxi environment supporting different grid sizes.
         """
@@ -22,32 +22,47 @@ class SimpleTaxiEnv():
         self.fuel_limit = fuel_limit
         self.current_fuel = fuel_limit
         self.passenger_picked_up = False
-        
-        self.stations = [(0, 0), (0, self.grid_size - 1), (self.grid_size - 1, 0), (self.grid_size - 1, self.grid_size - 1)]
+        self.stations = None
         self.passenger_loc = None
-       
-        self.obstacles = set()  # No obstacles in simple version
+        self.obstacles = None
         self.destination = None
-
+        self.first_time_pickup = False
     def reset(self):
         """Reset the environment, ensuring Taxi, passenger, and destination are not overlapping obstacles"""
         self.current_fuel = self.fuel_limit
         self.passenger_picked_up = False
-        
-
-        available_positions = [
-            (x, y) for x in range(self.grid_size) for y in range(self.grid_size)
-            if (x, y) not in self.stations and (x, y) not in self.obstacles
-        ]
-
-        self.taxi_pos = random.choice(available_positions)
-        
+        obstacle_num = {
+            5: 1,
+            6: 2,
+            7: 3,
+            8: 4,
+            9: 5,   
+            10: 6
+        }
+        positions = []
+        self.taxi_pos = (random.randint(0, self.grid_size-1), random.randint(0, self.grid_size-1))
+        while len(positions) < 4:
+            x = random.randint(0, self.grid_size-1)
+            y = random.randint(0, self.grid_size-1)
+            if ((x, y) not in positions and (x+1, y) not in positions and (x, y+1) not in positions 
+            and (x-1, y) not in positions and (x, y-1) not in positions) and (x, y) != self.taxi_pos:
+                positions.append((x, y))
+        self.stations = random.sample(positions, 4)
         self.passenger_loc = random.choice([pos for pos in self.stations])
-        
-        
         possible_destinations = [s for s in self.stations if s != self.passenger_loc]
         self.destination = random.choice(possible_destinations)
-        
+        # Generate obstacles
+        self.obstacles = set()
+        num_obstacles = random.randint(0,obstacle_num[self.grid_size])
+        while len(self.obstacles) < num_obstacles:
+            x = random.randint(0, self.grid_size-1)
+            y = random.randint(0, self.grid_size-1)
+            if (x, y) not in self.obstacles and (x, y) not in self.stations and (x, y) != self.taxi_pos:
+                self.obstacles.add((x, y))
+        # I want to check whether the taxi is surrounded by obstacles
+        if (self.taxi_pos[0]+1,self.taxi_pos[1]) in self.obstacles and (self.taxi_pos[0]-1,self.taxi_pos[1]) in self.obstacles and (self.taxi_pos[0],self.taxi_pos[1]+1) in self.obstacles and (self.taxi_pos[0],self.taxi_pos[1]-1) in self.obstacles:
+            return self.reset()
+
         return self.get_state(), {}
 
     def step(self, action):
@@ -218,5 +233,5 @@ if __name__ == "__main__":
         "fuel_limit": 5000
     }
     
-    agent_score = run_agent("student_agent.py", env_config, render=True)
-    print(f"Final Score: {agent_score}")
+    #agent_score = run_agent("student_agent.py", env_config, render=True)
+    #print(f"Final Score: {agent_score}")
