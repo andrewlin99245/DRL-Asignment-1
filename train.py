@@ -88,7 +88,7 @@ def train_q_table(episodes = 100000, alpha = 0.015, gamma = 0.99,
     passger = []
     for episode in tqdm(range(episodes), desc="Training Episodes"):
         # Reset the environment and get the initial state.
-        env = SimpleTaxiEnv(grid_size=random.randint(5,10), fuel_limit=500)
+        env = SimpleTaxiEnv(grid_size=random.randint(5,10), fuel_limit=5000)
         obs,_ = env.reset()
         total_reward = 0
         done = False
@@ -185,7 +185,7 @@ def train_q_table(episodes = 100000, alpha = 0.015, gamma = 0.99,
     plt.show()
     return q_table
 if __name__ == "__main__":
-    trained_q_table = train_q_table(episodes=8000000)
+    trained_q_table = train_q_table(episodes=1000000)
     # Save the updated Q-table.
     with open("my_q_table.pkl", "wb") as f:
         pickle.dump(trained_q_table, f)

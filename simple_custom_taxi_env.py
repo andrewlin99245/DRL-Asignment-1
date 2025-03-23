@@ -233,5 +233,5 @@ if __name__ == "__main__":
         "fuel_limit": 5000
     }
     
-    #agent_score = run_agent("student_agent.py", env_config, render=True)
-    #print(f"Final Score: {agent_score}")
+    agent_score = run_agent("student_agent.py", env_config, render=True)
+    print(f"Final Score: {agent_score}")
